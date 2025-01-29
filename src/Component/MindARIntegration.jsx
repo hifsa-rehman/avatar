@@ -16,6 +16,7 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
   const [modelRotation, setModelRotation] = useState({ x: 0, y: Math.PI, z: 0 });
 
   useEffect(() => {
+    loadSavedParameters();
     let isComponentMounted = true;
     let frameId = null;
     let lastRenderTime = 0;
@@ -206,6 +207,45 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
       .catch(err => console.error("Error loading new mask:", err));
   }, [selectedMask]); // Remove faceDetected dependency
 
+  const loadSavedParameters = async () => {
+    try {
+      const response = await fetch('/parameters.json');
+      if (response.ok) {
+        const params = await response.json();
+        setModelScale(params.scale || 0.65);
+        setModelPosition(params.position || { x: 0, y: -0.3, z: 0.3 });
+        setModelRotation(params.rotation || { x: 0, y: Math.PI, z: 0 });
+      }
+    } catch (error) {
+      console.log('No saved parameters found, using defaults');
+    }
+  };
+
+  const saveParameters = () => {
+    const parameters = {
+      scale: modelScale,
+      position: modelPosition,
+      rotation: modelRotation
+    };
+
+    // Create a blob with the JSON data
+    const blob = new Blob([JSON.stringify(parameters, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create a temporary link element to trigger the download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'parameters.json';
+    
+    // Append to document, click, and cleanup
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    alert('Parameters saved! Please move the file to the public folder.');
+  };
+
   const updateModelScale = (newScale) => {
     setModelScale(newScale);
     if (currentModelRef.current) {
@@ -315,6 +355,16 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
               <span>{(modelRotation[axis] * 180 / Math.PI).toFixed(0)}°</span>
             </div>
           ))}
+        </div>
+
+        <div className="control-column save-column">
+          <h3>Save Settings</h3>
+          <button 
+            className="save-parameters-button"
+            onClick={saveParameters}
+          >
+            Save Parameters
+          </button>
         </div>
       </div>
       <button onClick={onClose} className="close-button-video">

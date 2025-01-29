@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-import logo from "../src/assets/react.svg";
+import logo from "../src/assets/logo.png";
 import ParticlesBackground from "./Component/ParticlesBackground";
 import SettingsPopup from "./Component/SettingsPopup";
 import CameraFeed from "./Component/CameraFeed";
@@ -81,7 +81,7 @@ function App() {
       </div>
 
       {/* Welcome Title */}
-      <h1 className="welcome-title">Welcome to the Avatar</h1>
+      <h1 className="welcome-title">Welcome to the 3D Skull Avatar</h1>
 
       {/* Buttons */}
       <div className="button-container">

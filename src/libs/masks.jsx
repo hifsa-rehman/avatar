@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import * as THREE from 'three';
 import { loadGLTF } from './loader';
 
 // Update MODEL_CONFIG to match main.js exactly
 const MODEL_CONFIG = {
-  scale: [0.65, 0.65, 0.65],    // Match main.js values
-  position: [0, -0.3, 0.3],
-  rotation: [0, -0.3, 0.3]
+  scale: [0.25, 0.25, 0.25],     // Reduced scale for preview
+  position: [0, 0, 0],           // Centered position
+  rotation: [0, Math.PI, 0]      // Correct rotation
 };
 
 export const SkullMask = () => {
@@ -110,21 +110,47 @@ export const SkullMaskPlanes = () => {
 
 // Add this debug component
 const ModelLoader = ({ model }) => {
+  const meshRef = useRef();
+  
+  useEffect(() => {
+    if (!model && meshRef.current) {
+      // Animate the ring when model is loading
+      const animate = () => {
+        if (meshRef.current) {
+          meshRef.current.rotation.z += 0.05;
+        }
+        requestAnimationFrame(animate);
+      };
+      animate();
+    }
+  }, [model]);
+
   if (!model) {
-    console.log("Model is not loaded yet");
+    console.log("Model is not loaded yet - showing loading ring");
     return (
-      <mesh>
-        <boxGeometry args={[0.5, 0.5, 0.5]} />
-        <meshStandardMaterial color="red" />
-      </mesh>
+      <>
+        <ambientLight intensity={1} />
+        <pointLight position={[10, 10, 10]} />
+        <mesh ref={meshRef}>
+          <ringGeometry args={[0.3, 0.35, 32]} />
+          <meshStandardMaterial 
+            color="#ffffff"
+            emissive="#ffffff"
+            emissiveIntensity={0.5}
+            transparent
+            opacity={0.8}
+          />
+        </mesh>
+      </>
     );
   }
+  
   console.log("Model loaded successfully:", model);
   
-  // Adjust the scale and rotation if needed
-  model.scale.set(0.25, 0.25, 0.25); // Increase scale size
-  model.rotation.set(0, Math.PI, 0); // Ensure front faces the camera
-  model.position.set(0, 0, 0); // Center the model
+  // Apply consistent transforms from MODEL_CONFIG
+  model.scale.set(...MODEL_CONFIG.scale);
+  model.position.set(...MODEL_CONFIG.position);
+  model.rotation.set(...MODEL_CONFIG.rotation);
   
   return <primitive object={model} />;
 };
