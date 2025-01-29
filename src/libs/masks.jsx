@@ -34,13 +34,13 @@ export const MaskThree = () => (
 );
 
 // 3D Model Components
-export const LionSkullMask = () => {
+export const SkullMask = () => {
   const [model, setModel] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log("Loading lion skull model...");
-    loadGLTF("./models/lion_skull.glb")  // Updated path
+    console.log("Loading skull model...");
+    loadGLTF("./models/skull.glb")  // Updated path
       .then(gltf => {
         console.log("Lion skull loaded:", gltf);
         const loadedModel = gltf.scene;
@@ -49,19 +49,19 @@ export const LionSkullMask = () => {
         setModel(loadedModel);
       })
       .catch(err => {
-        console.error("Error loading lion skull:", err);
+        console.error("Error loading skull:", err);
         setError(err);
       });
   }, []);
 
   if (error) {
-    console.error("Error in LionSkullMask:", error);
+    console.error("Error in SkullMask:", error);
     return null;
   }
   return <ModelLoader model={model} />;
 };
 
-export const SkullMask = () => {
+export const SkullMaskDownloadable = () => {
   const [model, setModel] = useState(null);
   const [error, setError] = useState(null);
 
@@ -83,7 +83,7 @@ export const SkullMask = () => {
   return <ModelLoader model={model} />;
 };
 
-export const VenomMask = () => {
+export const SkullMaskPlanes = () => {
   const [model, setModel] = useState(null);
   const [error, setError] = useState(null);
 
@@ -135,18 +135,18 @@ export const masks = [
     component: MaskThree
   },
   {
-    name: "Lion Skull",
-    component: LionSkullMask,
-    path: "./models/lion_skull.glb"
+    name: "Skull",
+    component: SkullMaskDownloadable,
+    path: "./models/skull.glb"
   },
   {
-    name: "Skull",
+    name: "Skull 01",
     component: SkullMask,
     path: "./models/skull_downloadable.glb"
   },
   {
-    name: "Venom",
-    component: VenomMask,
+    name: "Skull 02",
+    component: SkullMaskPlanes,
     path: "./models/skull_planes.glb"
   }
 ];
