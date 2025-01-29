@@ -179,6 +179,7 @@
   width: 90%;
   max-width: 720px;
   height: auto;
+  margin-bottom: 140px; /* Reduced from 160px */
 }
 
 .camera-feed-video {
@@ -237,14 +238,65 @@
   font-size: 1.2rem;
 }
 
-.loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.7);
+.controls-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  height: auto;  /* Changed from fixed height */
+  min-height: 100px; /* Reduced height */
+}
+
+.control-column {
+  flex: 1;
+  max-width: 180px;  /* Reduced from 200px */
+  min-width: 80px;   /* Reduced from 100px */
+  display: flex;
+  flex-direction: column;
+  gap: 3px; /* Reduced gap */
+  padding: 5px;
+}
+
+.control-column > .control-group:last-child {
+  margin-bottom: 0;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: row; /* Changed from column to row */
+  align-items: center; /* Center items vertically */
+  gap: 8px;
+  margin-bottom: 5px;
+  height: 20px; /* Fixed height for consistent layout */
+}
+
+.control-group label {
   color: white;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-size: 1.2rem;
+  font-size: 10px;
+  min-width: 15px; /* Fixed width for labels */
+  text-align: right;
+}
+
+.control-group span {
+  color: white;
+  font-size: 10px;
+  min-width: 35px;
+  text-align: right;
+}
+
+.horizontal-slider {
+  flex: 1; /* Take remaining space */
+  width: 100%;
+  height: 8px;      /* Reduced height */
+  min-height: 8px;  /* Added min-height */
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  outline: none;
+  margin: 0; /* Remove margin */
 }

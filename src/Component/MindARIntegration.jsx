@@ -11,6 +11,9 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
   const currentModelRef = useRef(null);
   const [initError, setInitError] = useState(null);
   const [faceDetected, setFaceDetected] = useState(false);
+  const [modelScale, setModelScale] = useState(0.65);
+  const [modelPosition, setModelPosition] = useState({ x: 0, y: -0.3, z: 0.3 });
+  const [modelRotation, setModelRotation] = useState({ x: 0, y: Math.PI, z: 0 });
 
   useEffect(() => {
     let isComponentMounted = true;
@@ -108,7 +111,7 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
 
     // Helper function for loading models
     const MODEL_TRANSFORMS = {
-      scale: [0.65, 0.65, 0.65],     // FIXED: Exact value from main.js (was 0.65)
+      scale: [modelScale, modelScale, modelScale],
       position: [0, -0.3, 0.3],
       rotation: [0, -0.3, 0.3]
     };
@@ -192,7 +195,7 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
       }
       window.removeEventListener('camera-ready', startAR);
     };
-  }, []);
+  }, []); // Remove modelScale dependency
 
   useEffect(() => {
     if (!anchorRef.current || !selectedMask) return;
@@ -202,6 +205,48 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
       .then(() => console.log("New mask loaded successfully"))
       .catch(err => console.error("Error loading new mask:", err));
   }, [selectedMask]); // Remove faceDetected dependency
+
+  const updateModelScale = (newScale) => {
+    setModelScale(newScale);
+    if (currentModelRef.current) {
+      const group = currentModelRef.current.parent;
+      group.children.forEach(child => {
+        if (child.isObject3D) {
+          child.scale.set(newScale, newScale, newScale);
+        }
+      });
+    }
+  };
+
+  const updateModelPosition = (axis, value) => {
+    setModelPosition(prev => {
+      const newPosition = { ...prev, [axis]: value };
+      if (currentModelRef.current) {
+        const group = currentModelRef.current.parent;
+        group.children.forEach(child => {
+          if (child.isObject3D) {
+            child.position[axis] = value;
+          }
+        });
+      }
+      return newPosition;
+    });
+  };
+
+  const updateModelRotation = (axis, value) => {
+    setModelRotation(prev => {
+      const newRotation = { ...prev, [axis]: value };
+      if (currentModelRef.current) {
+        const group = currentModelRef.current.parent;
+        group.children.forEach(child => {
+          if (child.isObject3D) {
+            child.rotation[axis] = value;
+          }
+        });
+      }
+      return newRotation;
+    });
+  };
 
   if (initError) {
     return (
@@ -216,14 +261,63 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
 
   return (
     <div className="camera-feed-overlay">
-      <div 
-        ref={containerRef} 
-        className="camera-feed-container"
-      />
-      <button 
-        onClick={onClose}
-        className="close-button-video"
-      >
+      <div ref={containerRef} className="camera-feed-container" />
+      <div className="controls-panel">
+        <div className="control-column">
+          <h3>Scale</h3>
+          <div className="control-group">
+            <input
+              type="range"
+              min="0.1"
+              max="2.0"
+              step="0.05"
+              value={modelScale}
+              onChange={(e) => updateModelScale(parseFloat(e.target.value))}
+              className="horizontal-slider"
+            />
+            <span>{modelScale.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div className="control-column">
+          <h3>Position</h3>
+          {['x', 'y', 'z'].map(axis => (
+            <div key={`pos-${axis}`} className="control-group">
+              <label>{axis.toUpperCase()}</label>
+              <input
+                type="range"
+                min="-2"
+                max="2"
+                step="0.1"
+                value={modelPosition[axis]}
+                onChange={(e) => updateModelPosition(axis, parseFloat(e.target.value))}
+                className="horizontal-slider"
+              />
+              <span>{modelPosition[axis].toFixed(2)}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="control-column">
+          <h3>Rotation</h3>
+          {['x', 'y', 'z'].map(axis => (
+            <div key={`rot-${axis}`} className="control-group">
+              <label>{axis.toUpperCase()}</label>
+              <input
+                type="range"
+                min={-Math.PI}
+                max={Math.PI}
+                step={Math.PI / 18}
+                value={modelRotation[axis]}
+                onChange={(e) => updateModelRotation(axis, parseFloat(e.target.value))}
+                className="horizontal-slider"
+              />
+              <span>{(modelRotation[axis] * 180 / Math.PI).toFixed(0)}°</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <button onClick={onClose} className="close-button-video">
         <IoClose size={24} />
       </button>
     </div>

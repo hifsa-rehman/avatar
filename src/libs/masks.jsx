@@ -6,7 +6,7 @@ import { loadGLTF } from './loader';
 const MODEL_CONFIG = {
   scale: [0.65, 0.65, 0.65],    // Match main.js values
   position: [0, -0.3, 0.3],
-  rotation: [0, Math.PI, 0]
+  rotation: [0, -0.3, 0.3]
 };
 
 export const SkullMask = () => {
