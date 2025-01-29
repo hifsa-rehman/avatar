@@ -1,0 +1,250 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  color: white;
+}
+
+/* Existing logo styles remain unchanged */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+.welcome-title {
+  font-size: 2em;
+  margin-bottom: 0.5em;
+  z-index: 2;
+  position: relative;
+}
+/* New styles for buttons and containers */
+.button-container {
+  margin-top: 2rem;
+  z-index: 2;
+  position: relative;
+}
+
+.button {
+  margin: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 200ms ease-in-out;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+/* Settings popup styles */
+.settings-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1e1e1e; /* Dark theme */
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+  width: 95%;
+  max-width: 600px;
+  padding: 2rem;
+  z-index: 1000;
+  text-align: left;
+  color: #ffffff; /* Light text for contrast */
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.popup-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: #ffffff;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 200ms ease-in-out;
+}
+
+.close-button:hover {
+  color: #ff5c5c;
+}
+
+.mask-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.mask-selector select {
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #444;
+  border-radius: 5px;
+  background-color: #2c2c2c;
+  color: #ffffff;
+}
+
+.mask-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  border: 1px solid #444;
+  border-radius: 10px;
+  background-color: #2c2c2c;
+  color: #ffffff;
+}
+
+.save-button {
+  display: block;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 200ms ease-in-out;
+}
+
+.save-button:hover {
+  background-color: #0056b3;
+}
+
+/* camera feed component styling */
+
+.camera-feed-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  transition: all 0.3s ease-in-out;
+}
+
+.camera-feed-container {
+  position: relative;
+  width: 90%;
+  max-width: 720px;
+  height: auto;
+}
+
+.camera-feed-video {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.close-button-video {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+  font-size: 2rem;
+}
+
+.close-button-video:hover {
+  color: #ff5c5c;
+}
+
+.maximize-button {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+
+  cursor: pointer;
+  font-size: 2rem;
+}
+.maximize-button:hover {
+  color: #ff5c5c;
+}
+
+.maximized .camera-feed-container {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+}
+
+.maximized .camera-feed-video {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  object-fit: cover;
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.2rem;
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.2rem;
+}
