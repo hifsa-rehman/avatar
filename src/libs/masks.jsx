@@ -2,38 +2,13 @@ import React, { useState, useEffect } from "react";
 import * as THREE from 'three';
 import { loadGLTF } from './loader';
 
-// Example 3D mask components
-export const MaskOne = () => (
-  <mesh position={[0, 0, 0]}>
-    <sphereGeometry args={[0.5, 32, 32]} />
-    <meshStandardMaterial 
-      color="#ff6347"
-      transparent={true}
-      opacity={0.8}
-      side={THREE.DoubleSide}
-    />
-  </mesh>
-);
+// Update MODEL_CONFIG to match main.js exactly
+const MODEL_CONFIG = {
+  scale: [0.65, 0.65, 0.65],    // Match main.js values
+  position: [0, -0.3, 0.3],
+  rotation: [0, Math.PI, 0]
+};
 
-export const MaskTwo = () => (
-  <group position={[0, 0, 0]} scale={[0.3, 0.3, 0.3]}>
-    <mesh>
-      <torusGeometry args={[0.3, 0.1, 16, 32]} />
-      <meshStandardMaterial color="#ffb700" />
-    </mesh>
-  </group>
-);
-
-export const MaskThree = () => (
-  <group position={[0, 0, 0]} scale={[0.3, 0.3, 0.3]}>
-    <mesh>
-      <cylinderGeometry args={[0.4, 0.4, 0.1, 32]} />
-      <meshStandardMaterial color="#00ff88" />
-    </mesh>
-  </group>
-);
-
-// 3D Model Components
 export const SkullMask = () => {
   const [model, setModel] = useState(null);
   const [error, setError] = useState(null);
@@ -42,10 +17,19 @@ export const SkullMask = () => {
     console.log("Loading skull model...");
     loadGLTF("./models/skull.glb")  // Updated path
       .then(gltf => {
-        console.log("Lion skull loaded:", gltf);
+        console.log("Skull model loaded:", gltf);
         const loadedModel = gltf.scene;
-        loadedModel.rotation.x = -0.5; // Adjust rotation
-        loadedModel.scale.set(0.5, 0.5, 0.5);
+
+        loadedModel.scale.set(...MODEL_CONFIG.scale);
+        loadedModel.position.set(...MODEL_CONFIG.position);
+        loadedModel.rotation.set(...MODEL_CONFIG.rotation);
+
+        console.log("Model transforms:", {
+          scale: loadedModel.scale,
+          position: loadedModel.position,
+          rotation: loadedModel.rotation
+        });
+        
         setModel(loadedModel);
       })
       .catch(err => {
@@ -61,6 +45,7 @@ export const SkullMask = () => {
   return <ModelLoader model={model} />;
 };
 
+
 export const SkullMaskDownloadable = () => {
   const [model, setModel] = useState(null);
   const [error, setError] = useState(null);
@@ -69,8 +54,17 @@ export const SkullMaskDownloadable = () => {
     loadGLTF("./models/skull_downloadable.glb")  // Updated path
       .then(gltf => {
         const loadedModel = gltf.scene;
-        loadedModel.rotation.x = -0.5;
-        loadedModel.scale.set(0.5, 0.5, 0.5);
+
+        loadedModel.scale.set(...MODEL_CONFIG.scale);
+        loadedModel.position.set(...MODEL_CONFIG.position);
+        loadedModel.rotation.set(...MODEL_CONFIG.rotation);
+
+        console.log("Model transforms:", {
+          scale: loadedModel.scale,
+          position: loadedModel.position,
+          rotation: loadedModel.rotation
+        });
+        
         setModel(loadedModel);
       })
       .catch(err => {
@@ -91,12 +85,21 @@ export const SkullMaskPlanes = () => {
     loadGLTF("./models/skull_planes.glb")  // Updated path
       .then(gltf => {
         const loadedModel = gltf.scene;
-        loadedModel.rotation.x = -0.5;
-        loadedModel.scale.set(0.5, 0.5, 0.5);
+
+        loadedModel.scale.set(...MODEL_CONFIG.scale);
+        loadedModel.position.set(...MODEL_CONFIG.position);
+        loadedModel.rotation.set(...MODEL_CONFIG.rotation);
+
+        console.log("Model transforms:", {
+          scale: loadedModel.scale,
+          position: loadedModel.position,
+          rotation: loadedModel.rotation
+        });
+        
         setModel(loadedModel);
       })
       .catch(err => {
-        console.error("Error loading venom:", err);
+        console.error("Error loading skull:", err);
         setError(err);
       });
   }, []);
@@ -117,23 +120,18 @@ const ModelLoader = ({ model }) => {
     );
   }
   console.log("Model loaded successfully:", model);
-  return <primitive object={model} scale={[0.5, 0.5, 0.5]} />;
+  
+  // Adjust the scale and rotation if needed
+  model.scale.set(0.25, 0.25, 0.25); // Increase scale size
+  model.rotation.set(0, Math.PI, 0); // Ensure front faces the camera
+  model.position.set(0, 0, 0); // Center the model
+  
+  return <primitive object={model} />;
 };
+
 
 // Masks configuration array
 export const masks = [
-  { 
-    name: "Simple Mask", 
-    component: MaskOne
-  },
-  { 
-    name: "Torus Mask", 
-    component: MaskTwo
-  },
-  { 
-    name: "Cyber Mask", 
-    component: MaskThree
-  },
   {
     name: "Skull",
     component: SkullMaskDownloadable,

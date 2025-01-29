@@ -107,28 +107,73 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
     };
 
     // Helper function for loading models
+    const MODEL_TRANSFORMS = {
+      scale: [0.65, 0.65, 0.65],     // FIXED: Exact value from main.js (was 0.65)
+      position: [0, -0.3, 0.3],
+      rotation: [0, -0.3, 0.3]
+    };
+
     const loadAndAddModel = async (mask, group) => {
       try {
-        if (mask.path) {
-          const gltf = await loadGLTF(mask.path);
-          const model = gltf.scene;
-          model.scale.set(0.3, 0.3, 0.3);
-          model.position.set(0, 0, 0);
-          model.rotation.set(0, Math.PI, 0);
-          group.add(model);
-          currentModelRef.current = model;
-          console.log("✅ 3D Model loaded successfully");
-          return model;
-        } else {
-          const mask = new selectedMask.component();
-          mask.scale.set(0.3, 0.3, 0.3);
-          group.add(mask);
-          currentModelRef.current = mask;
-          console.log("✅ Basic mask created successfully");
-          return mask;
+        if (currentModelRef.current) {
+          group.remove(currentModelRef.current);
         }
+
+        // Load visible model first
+        const gltf = await loadGLTF(mask.path);
+        const model = gltf.scene;
+        
+        // Create occluder from the same model
+        const occluder = gltf.scene.clone();
+        const occluderMaterial = new THREE.MeshBasicMaterial({
+          colorWrite: false,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.7
+        });
+
+        // Apply transforms to both models
+        [model, occluder].forEach(obj => {
+          obj.scale.set(...MODEL_TRANSFORMS.scale);
+          obj.position.set(...MODEL_TRANSFORMS.position);
+          obj.rotation.set(...MODEL_TRANSFORMS.rotation);
+          
+          obj.traverse((node) => {
+            if (node.isMesh) {
+              // For occluder
+              if (obj === occluder) {
+                node.material = occluderMaterial;
+              }
+              // For visible model
+              else {
+                node.material.side = THREE.DoubleSide;
+                node.material.transparent = true;
+              }
+            }
+          });
+        });
+
+        // Set render order (occluder must render first)
+        occluder.renderOrder = 0;
+        model.renderOrder = 1;
+
+        // Add both to group in correct order
+        group.add(occluder);
+        group.add(model);
+        
+        // Store reference to visible model
+        currentModelRef.current = model;
+        
+        console.log("Model loaded with transforms:", {
+          scale: Array.from(model.scale),
+          position: Array.from(model.position),
+          rotation: Array.from(model.rotation),
+          visible: model.visible
+        });
+
+        return model;
       } catch (error) {
-        console.error("❌ Model loading error:", error);
+        console.error("Error loading 3D model:", error);
         return null;
       }
     };
@@ -151,55 +196,12 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
 
   useEffect(() => {
     if (!anchorRef.current || !selectedMask) return;
-
-    const loadModel = async () => {
-      try {
-        if (currentModelRef.current) {
-          anchorRef.current.group.remove(currentModelRef.current);
-        }
-
-        if (selectedMask.path) {
-          const gltf = await loadGLTF(selectedMask.path);
-          const model = gltf.scene;
-          
-          // Create occluder for better face tracking
-          const occluderMaterial = new THREE.MeshBasicMaterial({colorWrite: false});
-          model.traverse((o) => {
-            if (o.isMesh) {
-              const occluderMesh = o.clone();
-              occluderMesh.material = occluderMaterial;
-              occluderMesh.renderOrder = 0;
-              anchorRef.current.group.add(occluderMesh);
-            }
-          });
-          
-          // Adjusted model settings for better face fitting
-          model.scale.set(0.065, 0.065, 0.065); // Smaller scale
-          model.position.set(0, -0.3, 0.3); // Adjusted position
-          model.rotation.set(Math.PI, 0, 0); // Flip model 180 degrees
-          model.renderOrder = 1;
-          
-          anchorRef.current.group.add(model);
-          currentModelRef.current = model;
-          model.visible = faceDetected;
-        } else {
-          // Basic mask handling with adjusted settings
-          const mask = new selectedMask.component();
-          mask.scale.set(0.065, 0.065, 0.065);
-          mask.position.set(0, -0.3, 0.3);
-          mask.rotation.set(Math.PI, 0, 0);
-          mask.renderOrder = 1;
-          anchorRef.current.group.add(mask);
-          currentModelRef.current = mask;
-          mask.visible = faceDetected;
-        }
-      } catch (error) {
-        console.error("❌ Model loading error:", error);
-      }
-    };
-
-    loadModel();
-  }, [selectedMask, faceDetected]);
+    
+    console.log("Loading new mask:", selectedMask);
+    loadAndAddModel(selectedMask, anchorRef.current.group)
+      .then(() => console.log("New mask loaded successfully"))
+      .catch(err => console.error("Error loading new mask:", err));
+  }, [selectedMask]); // Remove faceDetected dependency
 
   if (initError) {
     return (

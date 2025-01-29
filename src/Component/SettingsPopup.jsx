@@ -56,7 +56,7 @@ const SettingsPopup = ({ setSelectedMask, selectedMask, onSave, onClose }) => {
         </div>
       </div>
       <div className="mask-selector">
-        <select onChange={handleMaskChange} value={selectedMask?.name || "Simple Mask"}>
+        <select onChange={handleMaskChange} value={selectedMask?.name || "Skull"}>
           {masks.map((mask) => (
             <option key={mask.name} value={mask.name}>
               {mask.name}
