@@ -43,7 +43,7 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
 
         console.log("👤 Step 3: Creating face tracking...");
         // Single anchor point for better tracking
-        const anchor = mindarThree.addAnchor(168);
+        const anchor = mindarThree.addAnchor(151); // Changed from 168 to 151
         anchorRef.current = anchor;
 
         anchor.onTargetFound = () => {
@@ -162,19 +162,33 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
           const gltf = await loadGLTF(selectedMask.path);
           const model = gltf.scene;
           
-          // Adjusted model positioning for better face alignment
-          model.scale.set(0.25, 0.25, 0.25); // Slightly smaller scale
-          model.position.set(0, -0.1, 0.2); // Moved slightly forward
-          model.rotation.set(0, Math.PI, 0);
+          // Create occluder for better face tracking
+          const occluderMaterial = new THREE.MeshBasicMaterial({colorWrite: false});
+          model.traverse((o) => {
+            if (o.isMesh) {
+              const occluderMesh = o.clone();
+              occluderMesh.material = occluderMaterial;
+              occluderMesh.renderOrder = 0;
+              anchorRef.current.group.add(occluderMesh);
+            }
+          });
+          
+          // Adjusted model settings for better face fitting
+          model.scale.set(0.065, 0.065, 0.065); // Smaller scale
+          model.position.set(0, -0.3, 0.3); // Adjusted position
+          model.rotation.set(Math.PI, 0, 0); // Flip model 180 degrees
+          model.renderOrder = 1;
           
           anchorRef.current.group.add(model);
           currentModelRef.current = model;
           model.visible = faceDetected;
         } else {
+          // Basic mask handling with adjusted settings
           const mask = new selectedMask.component();
-          mask.scale.set(0.3, 0.3, 0.3);
-          mask.position.set(0, -0.05, 0.2); // Adjusted position
-          mask.rotation.set(0, Math.PI, 0);
+          mask.scale.set(0.065, 0.065, 0.065);
+          mask.position.set(0, -0.3, 0.3);
+          mask.rotation.set(Math.PI, 0, 0);
+          mask.renderOrder = 1;
           anchorRef.current.group.add(mask);
           currentModelRef.current = mask;
           mask.visible = faceDetected;
@@ -199,52 +213,16 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
   }
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="camera-feed-overlay">
       <div 
         ref={containerRef} 
-        style={{ 
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '500px',
-          height: '500px',
-          zIndex: 2,
-          pointerEvents: 'none'
-        }} 
+        className="camera-feed-container"
       />
       <button 
         onClick={onClose}
-        style={{ 
-          position: 'absolute',
-          bottom: '10px',  // Adjusted to place below the camera view axis
-          left: '50%',     // Center horizontally
-          transform: 'translateX(-50%)', // Center alignment
-          zIndex: 10,
-          background: 'transparent',
-          color: 'white',
-          border: '1px solid white',
-          width: '36px',
-          height: '36px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          padding: 0,
-          transition: 'all 0.3s ease',
-          backdropFilter: 'blur(2px)',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-          e.currentTarget.style.transform = 'translateX(-50%) scale(1.1)';
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.backgroundColor = 'transparent';
-          e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
-        }}
+        className="close-button-video"
       >
-        <IoClose size={24} style={{ color: 'white' }} />
+        <IoClose size={24} />
       </button>
     </div>
   );

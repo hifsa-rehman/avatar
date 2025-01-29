@@ -41,40 +41,14 @@ const CameraFeed = ({ onClose }) => {
   }, []);
 
   return (
-    <div className="camera-feed-overlay" style={{
-      position: 'fixed',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      width: '500px',
-      height: '500px',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'black',
-      zIndex: 1,
-      border: '2px solid #333'
-    }}>
-      <div className="camera-feed-container" style={{
-        position: 'relative',
-        width: '500px',
-        height: '500px',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden'
-      }}>
+    <div className="camera-feed-overlay" style={{ overflow: "hidden" }}>
+      <div className="camera-feed-container">
         <video
           ref={videoRef}
           autoPlay
           playsInline
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            position: 'absolute',
-            visibility: 'hidden' // Hide the initial video feed
-          }}
+          className="camera-feed-video"
+          style={{ visibility: 'hidden' }}
         />
       </div>
     </div>
