@@ -1,15 +1,15 @@
 {
   "modelName": "Skull 01",
   "modelPath": "./models/skull_downloadable.glb",
-  "scale": 1.3,
+  "scale": 0.95,
   "position": {
     "x": 0,
     "y": 0.7,
     "z": 1.3
   },
   "rotation": {
-    "x": 0,
-    "y": 3.141592653589793,
-    "z": -0.872664625997165
+    "x": 1e-16,
+    "y": -0.174532925199433,
+    "z": 0.174532925199433
   }
 }

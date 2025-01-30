@@ -13,7 +13,7 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
   const [faceDetected, setFaceDetected] = useState(false);
   const [modelScale, setModelScale] = useState(0.65);
   const [modelPosition, setModelPosition] = useState({ x: 0, y: -0.3, z: 0.3 });
-  const [modelRotation, setModelRotation] = useState({ x: 0, y: Math.PI, z: 0 });
+  const [modelRotation, setModelRotation] = useState({ x: 0, y: 0, z: 0 });
 
   useEffect(() => {
     loadSavedParameters();
@@ -113,8 +113,8 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
     // Helper function for loading models
     const MODEL_TRANSFORMS = {
       scale: [modelScale, modelScale, modelScale],
-      position: [0, -0.3, 0.3],
-      rotation: [0, -0.3, 0.3]
+      position: [modelPosition.x, modelPosition.y, modelPosition.z],
+      rotation: [modelRotation.x, modelRotation.y, modelRotation.z]
     };
 
     const loadAndAddModel = async (mask, group) => {
