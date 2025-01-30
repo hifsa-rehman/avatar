@@ -28,10 +28,13 @@ Before running this project, ensure that you have the following installed:
 
 - This project uses **pnpm** for faster and more efficient dependency management.
 - To install pnpm globally, run the following command:
+
   ```bash
   npm install -g pnpm
   ```
+
 - Verify the installation by checking the version:
+
   ```bash
   pnpm --version
   ```
@@ -55,6 +58,7 @@ Follow these steps to set up the project locally:
    ```
 
 3. **Install Dependencies Use pnpm to install all project dependencies**
+
    ```bash
    pnpm install
    ```
@@ -65,6 +69,13 @@ Follow these steps to set up the project locally:
 
    ```bash
    pnpm dev
+
+   ```
+
+2. **Start the Backend Server**
+
+   ```bash
+   pnpm run server
 
    ```
 
