@@ -26,6 +26,17 @@ export default defineConfig({
     headers: {
       'Cross-Origin-Embedder-Policy': 'credentialless',
       'Cross-Origin-Opener-Policy': 'same-origin',
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000', // Assuming your API server runs on port 3000
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      },
+      '/saveParameters': {
+        target: 'http://localhost:3000',
+        changeOrigin: true
+      }
     }
   }
 });

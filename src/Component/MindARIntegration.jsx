@@ -232,9 +232,9 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
     }
   };
 
-  const saveParameters = () => {
+  const saveParameters = async () => {
     if (!selectedMask) return;
-
+  
     const parameters = {
       modelName: selectedMask.name,
       modelPath: selectedMask.path,
@@ -242,26 +242,29 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
       position: modelPosition,
       rotation: modelRotation
     };
-
-    // Create a blob with the JSON data
-    const blob = new Blob([JSON.stringify(parameters, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    // Use model-specific filename
-    const filename = `parameters-${selectedMask.name}.json`;
-    
-    // Create a temporary link element to trigger the download
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    
-    // Append to document, click, and cleanup
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    alert(`Parameters saved for ${selectedMask.name}! Please move the file to the public folder.`);
+  
+    try {
+      const response = await fetch('/saveParameters', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileName: `parameters-${selectedMask.name.toLowerCase()}.json`,
+          data: parameters
+        })
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        alert(result.message);
+      } else {
+        throw new Error('Failed to save parameters');
+      }
+    } catch (error) {
+      console.error('Error saving parameters:', error);
+      alert('Failed to save parameters. Please try again.');
+    }
   };
 
   // Update useEffect to load parameters when selectedMask changes
