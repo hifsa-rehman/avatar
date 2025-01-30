@@ -54,9 +54,12 @@
   z-index: 2;
   position: relative;
   display: flex;
+  flex-direction: column;  /* Changed from row-based to column-based */
   gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
+  align-items: center;    /* Center buttons horizontally */
+  max-width: 300px;       /* Limit container width */
+  margin-left: auto;      /* Center container horizontally */
+  margin-right: auto;
 }
 
 .button {
@@ -70,6 +73,7 @@
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 200ms ease-in-out;
+  width: 100%;           /* Make buttons full width of container */
 }
 
 .button:hover {
