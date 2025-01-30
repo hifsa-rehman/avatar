@@ -208,8 +208,19 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
   }, [selectedMask]); // Remove faceDetected dependency
 
   const loadSavedParameters = async () => {
+    if (!selectedMask) return;
+    
     try {
-      const response = await fetch('/parameters.json');
+      // Try to load model-specific parameters first
+      const modelSpecificFile = `./parameters/parameters-${selectedMask.name}.json`;
+      const defaultFile = './parameters/parameters.json';
+      
+      let response = await fetch(modelSpecificFile);
+      if (!response.ok) {
+        // Fall back to default parameters if model-specific ones don't exist
+        response = await fetch(defaultFile);
+      }
+      
       if (response.ok) {
         const params = await response.json();
         setModelScale(params.scale || 0.65);
@@ -222,7 +233,11 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
   };
 
   const saveParameters = () => {
+    if (!selectedMask) return;
+
     const parameters = {
+      modelName: selectedMask.name,
+      modelPath: selectedMask.path,
       scale: modelScale,
       position: modelPosition,
       rotation: modelRotation
@@ -232,10 +247,13 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
     const blob = new Blob([JSON.stringify(parameters, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     
+    // Use model-specific filename
+    const filename = `parameters-${selectedMask.name}.json`;
+    
     // Create a temporary link element to trigger the download
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'parameters.json';
+    link.download = filename;
     
     // Append to document, click, and cleanup
     document.body.appendChild(link);
@@ -243,8 +261,13 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    alert('Parameters saved! Please move the file to the public folder.');
+    alert(`Parameters saved for ${selectedMask.name}! Please move the file to the public folder.`);
   };
+
+  // Update useEffect to load parameters when selectedMask changes
+  useEffect(() => {
+    loadSavedParameters();
+  }, [selectedMask]);
 
   const updateModelScale = (newScale) => {
     setModelScale(newScale);
