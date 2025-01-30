@@ -53,9 +53,14 @@
   margin-top: 2rem;
   z-index: 2;
   position: relative;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .button {
+  min-width: 150px;
   margin: 0.5rem;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
@@ -323,3 +328,27 @@
 .save-parameters-button:hover {
   background-color: #45a049;
 }
+
+/* ...existing styles... */
+
+.camera-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Ensure MindAR container takes full space */
+.camera-feed-container {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+/* ...existing styles... */

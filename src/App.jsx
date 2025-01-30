@@ -11,6 +11,7 @@ import { initMindAR } from './libs/mindarLoader';
 
 function App() {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isCalibrationMode, setIsCalibrationMode] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedMask, setSelectedMask] = useState(masks[0]);
   const [isMindarReady, setIsMindarReady] = useState(false);
@@ -70,6 +71,12 @@ function App() {
     setIsSettingsOpen(false);
   };
 
+  const closeAllModes = () => {
+    setIsCameraOpen(false);
+    setIsCalibrationMode(false);
+    setIsSettingsOpen(false);
+  };
+
   return (
     <div className="app">
       {/* Particle Background */}
@@ -85,43 +92,42 @@ function App() {
 
       {/* Buttons */}
       <div className="button-container">
-        <button className="button" onClick={() => setIsCameraOpen(true)}>
+        <button className="button" onClick={() => {
+          closeAllModes();
+          setIsCameraOpen(true);
+        }}>
           Open Camera
         </button>
-        <button className="button" onClick={() => setIsSettingsOpen(true)}>
-          Settings
+        <button className="button" onClick={() => {
+          closeAllModes();
+          setIsCalibrationMode(true);
+        }}>
+          Model Calibration
+        </button>
+        <button className="button" onClick={() => {
+          closeAllModes();
+          setIsSettingsOpen(true);
+        }}>
+          Select Model
         </button>
       </div>
 
       {/* Modified Camera Feed and AR Integration */}
-      {isCameraOpen && (
+      {(isCameraOpen || isCalibrationMode) && (
         <ErrorBoundary>
-          <div className="camera-container" style={{ 
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            zIndex: 1000,
-            overflow: 'hidden',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(0, 0, 0, 0.9)'
-          }}>
-            <div style={{ position: 'relative' }}>
-              <CameraFeed />
-              {isMindarReady && (
-                <MindARIntegration 
-                  selectedMask={selectedMask} 
-                  key={selectedMask.name}
-                  onClose={() => {
-                    setIsCameraOpen(false);
-                    window.dispatchEvent(new Event('ar-cleanup'));
-                  }}
-                />
-              )}
-            </div>
+          <div className="camera-container">
+            <CameraFeed />
+            {isMindarReady && (
+              <MindARIntegration 
+                selectedMask={selectedMask} 
+                key={selectedMask.name}
+                showControls={isCalibrationMode}
+                onClose={() => {
+                  closeAllModes();
+                  window.dispatchEvent(new Event('ar-cleanup'));
+                }}
+              />
+            )}
           </div>
         </ErrorBoundary>
       )}

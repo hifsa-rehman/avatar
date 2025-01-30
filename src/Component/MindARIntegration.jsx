@@ -4,7 +4,7 @@ import { loadGLTF } from "../libs/loader";
 import { getMindARThree, createOptimizedRenderer } from '../libs/mindarLoader';
 import { IoClose } from "react-icons/io5";
 
-const MindARIntegration = ({ selectedMask, onClose }) => {
+const MindARIntegration = ({ selectedMask, onClose, showControls }) => {
   const containerRef = useRef(null);
   const mindarThreeRef = useRef(null);
   const anchorRef = useRef(null);
@@ -362,71 +362,73 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
   return (
     <div className="camera-feed-overlay">
       <div ref={containerRef} className="camera-feed-container" />
-      <div className="controls-panel">
-        <div className="control-column">
-          <h3>Scale</h3>
-          <div className="control-group">
-            <input
-              type="range"
-              min="0.1"
-              max="2.0"
-              step="0.05"
-              value={modelScale}
-              onChange={(e) => updateModelScale(parseFloat(e.target.value))}
-              className="horizontal-slider"
-            />
-            <span>{modelScale.toFixed(2)}</span>
+      {showControls && (
+        <div className="controls-panel">
+          <div className="control-column">
+            <h3>Scale</h3>
+            <div className="control-group">
+              <input
+                type="range"
+                min="0.1"
+                max="2.0"
+                step="0.05"
+                value={modelScale}
+                onChange={(e) => updateModelScale(parseFloat(e.target.value))}
+                className="horizontal-slider"
+              />
+              <span>{modelScale.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div className="control-column">
+            <h3>Position</h3>
+            {['x', 'y', 'z'].map(axis => (
+              <div key={`pos-${axis}`} className="control-group">
+                <label>{axis.toUpperCase()}</label>
+                <input
+                  type="range"
+                  min="-2"
+                  max="2"
+                  step="0.1"
+                  value={modelPosition[axis]}
+                  onChange={(e) => updateModelPosition(axis, parseFloat(e.target.value))}
+                  className="horizontal-slider"
+                />
+                <span>{modelPosition[axis].toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="control-column">
+            <h3>Rotation</h3>
+            {['x', 'y', 'z'].map(axis => (
+              <div key={`rot-${axis}`} className="control-group">
+                <label>{axis.toUpperCase()}</label>
+                <input
+                  type="range"
+                  min={-Math.PI}
+                  max={Math.PI}
+                  step={Math.PI / 18}
+                  value={modelRotation[axis]}
+                  onChange={(e) => updateModelRotation(axis, parseFloat(e.target.value))}
+                  className="horizontal-slider"
+                />
+                <span>{(modelRotation[axis] * 180 / Math.PI).toFixed(0)}°</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="control-column save-column">
+            <h3>Save Settings</h3>
+            <button 
+              className="save-parameters-button"
+              onClick={saveParameters}
+            >
+              Save Parameters
+            </button>
           </div>
         </div>
-
-        <div className="control-column">
-          <h3>Position</h3>
-          {['x', 'y', 'z'].map(axis => (
-            <div key={`pos-${axis}`} className="control-group">
-              <label>{axis.toUpperCase()}</label>
-              <input
-                type="range"
-                min="-2"
-                max="2"
-                step="0.1"
-                value={modelPosition[axis]}
-                onChange={(e) => updateModelPosition(axis, parseFloat(e.target.value))}
-                className="horizontal-slider"
-              />
-              <span>{modelPosition[axis].toFixed(2)}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="control-column">
-          <h3>Rotation</h3>
-          {['x', 'y', 'z'].map(axis => (
-            <div key={`rot-${axis}`} className="control-group">
-              <label>{axis.toUpperCase()}</label>
-              <input
-                type="range"
-                min={-Math.PI}
-                max={Math.PI}
-                step={Math.PI / 18}
-                value={modelRotation[axis]}
-                onChange={(e) => updateModelRotation(axis, parseFloat(e.target.value))}
-                className="horizontal-slider"
-              />
-              <span>{(modelRotation[axis] * 180 / Math.PI).toFixed(0)}°</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="control-column save-column">
-          <h3>Save Settings</h3>
-          <button 
-            className="save-parameters-button"
-            onClick={saveParameters}
-          >
-            Save Parameters
-          </button>
-        </div>
-      </div>
+      )}
       <button onClick={onClose} className="close-button-video">
         <IoClose size={24} />
       </button>
