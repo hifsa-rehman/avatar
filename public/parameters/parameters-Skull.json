@@ -1,14 +1,14 @@
 {
   "modelName": "Skull",
   "modelPath": "./models/skull.glb",
-  "scale": 1.45,
+  "scale": 0.75,
   "position": {
     "x": 0,
-    "y": 0.3,
-    "z": 0.3
+    "y": -0.1,
+    "z": -0.4
   },
   "rotation": {
-    "x": 1e-16,
+    "x": 0,
     "y": 1e-16,
     "z": 0
   }

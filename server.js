@@ -14,6 +14,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public')); // Serve static files from public directory
 
+// Explicitly serve the parameters directory
+app.use('/parameters', express.static(join(__dirname, 'public', 'parameters')));
+
+// Add an endpoint to list available parameter files (helpful for debugging)
+app.get('/listParameters', async (req, res) => {
+  try {
+    const parametersDir = join(__dirname, 'public', 'parameters');
+    const files = await fs.readdir(parametersDir);
+    res.json({ files });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to list parameters' });
+  }
+});
+
 // Single endpoint for saving parameters
 app.post('/saveParameters', async (req, res) => {
   try {

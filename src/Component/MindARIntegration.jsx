@@ -123,12 +123,27 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
           group.remove(currentModelRef.current);
         }
 
-        // Load visible model first
+        // Load parameters first
+        const params = await loadSavedParameters();
+        console.log('Loaded parameters before model:', params);
+
+        if (params) {
+          // Update state synchronously
+          await new Promise(resolve => {
+            setModelScale(params.scale);
+            setModelPosition(params.position);
+            setModelRotation(params.rotation);
+            // Give React time to update state
+            requestAnimationFrame(resolve);
+          });
+        }
+
+        // Load the model
         const gltf = await loadGLTF(mask.path);
         const model = gltf.scene;
-        
-        // Create occluder from the same model
         const occluder = gltf.scene.clone();
+
+        // Create material for occluder
         const occluderMaterial = new THREE.MeshBasicMaterial({
           colorWrite: false,
           side: THREE.DoubleSide,
@@ -136,20 +151,33 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
           opacity: 0.7
         });
 
+        // Apply transforms directly from params if available, otherwise use current state
+        const transforms = params || {
+          scale: modelScale,
+          position: modelPosition,
+          rotation: modelRotation
+        };
+
+        console.log('Applying transforms:', transforms);
+
         // Apply transforms to both models
         [model, occluder].forEach(obj => {
-          obj.scale.set(...MODEL_TRANSFORMS.scale);
-          obj.position.set(...MODEL_TRANSFORMS.position);
-          obj.rotation.set(...MODEL_TRANSFORMS.rotation);
+          obj.scale.set(transforms.scale, transforms.scale, transforms.scale);
+          obj.position.set(
+            transforms.position.x,
+            transforms.position.y,
+            transforms.position.z
+          );
+          obj.rotation.set(
+            transforms.rotation.x,
+            transforms.rotation.y,
+            transforms.rotation.z
+          );
           
           obj.traverse((node) => {
             if (node.isMesh) {
-              // For occluder
-              if (obj === occluder) {
-                node.material = occluderMaterial;
-              }
-              // For visible model
-              else {
+              node.material = obj === occluder ? occluderMaterial : node.material;
+              if (obj !== occluder) {
                 node.material.side = THREE.DoubleSide;
                 node.material.transparent = true;
               }
@@ -157,23 +185,14 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
           });
         });
 
-        // Set render order (occluder must render first)
+        // Set render order
         occluder.renderOrder = 0;
         model.renderOrder = 1;
 
-        // Add both to group in correct order
+        // Add to scene
         group.add(occluder);
         group.add(model);
-        
-        // Store reference to visible model
         currentModelRef.current = model;
-        
-        console.log("Model loaded with transforms:", {
-          scale: Array.from(model.scale),
-          position: Array.from(model.position),
-          rotation: Array.from(model.rotation),
-          visible: model.visible
-        });
 
         return model;
       } catch (error) {
@@ -198,37 +217,57 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
     };
   }, []); // Remove modelScale dependency
 
+  // Modify the useEffect for selectedMask changes
   useEffect(() => {
     if (!anchorRef.current || !selectedMask) return;
     
-    console.log("Loading new mask:", selectedMask);
-    loadAndAddModel(selectedMask, anchorRef.current.group)
-      .then(() => console.log("New mask loaded successfully"))
-      .catch(err => console.error("Error loading new mask:", err));
-  }, [selectedMask]); // Remove faceDetected dependency
+    const loadMaskWithParameters = async () => {
+      try {
+        // Load parameters first
+        await loadSavedParameters();
+        
+        // Short delay to ensure state updates are processed
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Then load the model
+        console.log("Loading mask with updated parameters:", {
+          scale: modelScale,
+          position: modelPosition,
+          rotation: modelRotation
+        });
+        
+        await loadAndAddModel(selectedMask, anchorRef.current.group);
+      } catch (err) {
+        console.error("Error loading mask with parameters:", err);
+      }
+    };
 
+    loadMaskWithParameters();
+  }, [selectedMask]);
+
+  // Modify loadSavedParameters to return a promise
   const loadSavedParameters = async () => {
-    if (!selectedMask) return;
+    if (!selectedMask) return null;
     
     try {
-      // Try to load model-specific parameters first
-      const modelSpecificFile = `./parameters/parameters-${selectedMask.name}.json`;
-      const defaultFile = './parameters/parameters.json';
+      const modelName = selectedMask.name.toLowerCase();
+      const modelSpecificFile = `/parameters/parameters-${modelName}.json`;
       
-      let response = await fetch(modelSpecificFile);
+      console.log('Loading parameters from:', modelSpecificFile);
+      
+      const response = await fetch(modelSpecificFile);
       if (!response.ok) {
-        // Fall back to default parameters if model-specific ones don't exist
-        response = await fetch(defaultFile);
+        throw new Error('Failed to load parameters');
       }
       
-      if (response.ok) {
-        const params = await response.json();
-        setModelScale(params.scale || 0.65);
-        setModelPosition(params.position || { x: 0, y: -0.3, z: 0.3 });
-        setModelRotation(params.rotation || { x: 0, y: Math.PI, z: 0 });
-      }
+      const params = await response.json();
+      console.log('Retrieved parameters:', params);
+
+      // Return parameters without setting state
+      return params;
     } catch (error) {
-      console.log('No saved parameters found, using defaults');
+      console.error('Error loading parameters:', error);
+      return null;
     }
   };
 
@@ -266,11 +305,6 @@ const MindARIntegration = ({ selectedMask, onClose }) => {
       alert('Failed to save parameters. Please try again.');
     }
   };
-
-  // Update useEffect to load parameters when selectedMask changes
-  useEffect(() => {
-    loadSavedParameters();
-  }, [selectedMask]);
 
   const updateModelScale = (newScale) => {
     setModelScale(newScale);
